@@ -200,7 +200,6 @@ async def start(publishedFileId):
     for link, file_name in links:
         download_status = download(link, save_path, file_name)
         if download_status:
-            Prompt.ask(f"[{color()}][&]按任意按键退出")
             return "Done"
 
 
@@ -210,20 +209,20 @@ if __name__ == "__main__":
     console.print(f"[{color()}][0]创意工坊地址: https://steamcommunity.com/workshop/browse/?appid=431960")
     while True:
         id = Prompt.ask(
-            f"[{color()}][&] 请输入下载ID(例：链接 https://steamcommunity.com/sharedfiles/filedetails/?id=2311180253 只需输入 2311180253 即可)\n")
+            f"[{color()}][&] 请输入下载ID(例：链接 https://steamcommunity.com/sharedfiles/filedetails/?id=2311180253 只需输入 2311180253 即可),输入Q退出\n")
         if id:
             unmber = re.findall("\D", id)
-            if unmber:
+            if id.upper() == "Q":
+                break
+            elif unmber:
                 console.print("[red][!] 输入错误")
-                Prompt.ask(f"[{color()}][&]按任意按键退出")
-                sys.exit(0)
+                continue
             try:
                 asyncio.run(start(int(id)))
             except Exception as e:
                 console.print(f"[red]{e}")
                 Prompt.ask(f"[{color()}][&]按任意按键退出")
-                sys.exit(0)
+                sys.exit(0)    
         else:
             console.print("[red][!] 输入错误")
-            Prompt.ask(f"[{color()}][&]按任意按键退出")
-            break
+            continue
