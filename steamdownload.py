@@ -225,4 +225,3 @@ if __name__ == "__main__":
                 sys.exit(0)    
         else:
             console.print("[red][!] 输入错误")
-            continue
