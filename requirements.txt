@@ -1,0 +1,6 @@
+requests~=2.27.1
+urllib3~=1.26.9
+rich==12.2.0
+asyncio~=3.4.3
+aiohttp~=3.8.1
+configparser==5.2.0
