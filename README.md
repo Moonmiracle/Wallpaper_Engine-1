@@ -24,9 +24,7 @@
 
 由于`exe`文件的编译采用了`pyinstaller`进行的编译，所有会有一定概率报毒，不放心可以自己使用源码的方式运行
 
-`VirsTotal`查杀结果
-
-> https://www.virustotal.com/gui/file/19e179d5c7bedd23aba1de205d5df2ffcfe555a503d3ccce9fb8a9669d2730c3
+[`VirsTotal`查杀结果](https://www.virustotal.com/gui/file/103db211bc4a97d68de5967392666bd4f93f5a10376e7ed70246a5e420035343?nocache=1)
 
 ### 🦽Bug请提 [Issues](https://github.com/captain686/Wallpaper_Engine/issues)
 
