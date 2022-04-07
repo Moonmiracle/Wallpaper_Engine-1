@@ -47,12 +47,14 @@ def get_config():
                 if save_path:
                     if not os.path.exists(save_path):
                         console.print("[red][!] 目录不存在")
+                        Prompt.ask(f"[{color()}][&]按任意按键退出")
                         sys.exit(0)
                     config.set("savePath", "path", save_path)
                     with open(config_file, 'w') as fw:
                         config.write(fw)
                 else:
                     console.print("[red][!] 输入错误")
+                    Prompt.ask(f"[{color()}][&]按任意按键退出")
                     sys.exit(0)
             return save_path
         else:
@@ -198,19 +200,30 @@ async def start(publishedFileId):
     for link, file_name in links:
         download_status = download(link, save_path, file_name)
         if download_status:
+            Prompt.ask(f"[{color()}][&]按任意按键退出")
             return "Done"
 
 
 if __name__ == "__main__":
     if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    id = Prompt.ask(
-        f"[{color()}][&] 请输入下载ID(例：链接 https://steamcommunity.com/sharedfiles/filedetails/?id=2311180253 只需输入 2311180253 即可)\n")
-    if id:
-        unmber = re.findall("\D", id)
-        if unmber:
+    console.print(f"[{color()}][0]创意工坊地址: https://steamcommunity.com/workshop/browse/?appid=431960")
+    while True:
+        id = Prompt.ask(
+            f"[{color()}][&] 请输入下载ID(例：链接 https://steamcommunity.com/sharedfiles/filedetails/?id=2311180253 只需输入 2311180253 即可)\n")
+        if id:
+            unmber = re.findall("\D", id)
+            if unmber:
+                console.print("[red][!] 输入错误")
+                Prompt.ask(f"[{color()}][&]按任意按键退出")
+                sys.exit(0)
+            try:
+                asyncio.run(start(int(id)))
+            except Exception as e:
+                console.print(f"[red]{e}")
+                Prompt.ask(f"[{color()}][&]按任意按键退出")
+                sys.exit(0)
+        else:
             console.print("[red][!] 输入错误")
-            sys.exit(0)
-        asyncio.run(start(int(id)))
-    else:
-        console.print("[red][!] 输入错误")
+            Prompt.ask(f"[{color()}][&]按任意按键退出")
+            break
