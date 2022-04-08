@@ -236,13 +236,16 @@ def run():
                 console.print("[red][!] 输入错误")
                 continue
             links = asyncio.run(start(int(id)))
-            if links:
+            try:
                 save_path = get_config()
                 console.print(f"[{color()}][+] 开始下载 ... ...")
                 for link, file_name in links:
                     download_status = download(link, save_path, file_name)
                     if download_status:
                         break
+            except:
+                console.print("[red][-] 网络错误，请重试")
+                continue
             else:
                 console.print("[red][!] 未查询到下载链接")
         else:
