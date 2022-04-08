@@ -1,9 +1,11 @@
+from ast import If
 import asyncio
 import json
 import os
 import random
 import re
 import sys
+import time
 import zipfile
 from configparser import ConfigParser
 
@@ -34,6 +36,7 @@ headers = {"Sec-Ch-Ua": "\"(Not(A:Brand\";v=\"8\", \"Chromium\";v=\"99\"",
            "Accept-Language": "zh-CN,zh;q=0.9"
            }
 
+Retrytime = 3
 
 def get_config():
     config_path = os.getcwd()
@@ -78,10 +81,10 @@ def state(func):
 
 
 def color():
-    # colores = ["grey","green","yellow","blue","magenta","cyan","#6d9eeb", "#4fe8a6", "#33ffff"]
-    # # return random.choice(colores)
-    colores = "#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-    return colores
+    colores = ["grey","green","yellow","blue","magenta","cyan","#6d9eeb", "#4fe8a6", "#33ffff"]
+    return random.choice(colores)
+    # colores = "#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+    # return colores
 
 
 @state
@@ -157,35 +160,54 @@ def download(link, save_path, file_name):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"}
     file_ = os.path.join(save_path, file_name)
     # print(link)
+    downSize = 0
     try:
-        resp = requests.get(link, headers=header, verify=False, stream=True, timeout=15)
+        resp = requests.get(link, headers=header, verify=False, stream=True)
         # print(resp.status_code)
         if resp.status_code == 200:
+            total = int(resp.headers["Content-length"])
             console.print(f"[{color()}]Requesting [blue]{link}")
             with Progress() as progress:
                 with open(file_, "wb") as f:
-                    task = progress.add_task(f'[{color()}]Downloading...', total=int(resp.headers["Content-length"]))
+                    task = progress.add_task(f'[{color()}]Downloading...', total=total)
                     for chunk in resp.iter_content(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
                             progress.update(task, advance=len(chunk))
-            console.print(f"[{color()}]Downloaded [blue]{file_}")
+                            downSize += len(chunk)
+            if downSize >=  total:
+                console.print(f"[{color()}]Downloaded [blue]{file_}")
 
-            zip_file = zipfile.ZipFile(file_)
-            unzip_path = os.path.join(save_path, str(file_name).replace(".zip", ""))
-            if not os.path.exists(unzip_path):
-                os.mkdir(unzip_path)
-            for names in zip_file.namelist():
-                console.print(f"[{color()}][&] try to unzip file [{names}] to path [{unzip_path}]")
-                zip_file.extract(names, unzip_path)
-                console.print(f"[{color()}][+] finish to unzip file [{names}] to path [{unzip_path}]")
-            zip_file.close()
-            os.remove(file_)
-            return True
+                zip_file = zipfile.ZipFile(file_)
+                unzip_path = os.path.join(save_path, str(file_name).replace(".zip", ""))
+                if not os.path.exists(unzip_path):
+                    os.mkdir(unzip_path)
+                for names in zip_file.namelist():
+                    console.print(f"[{color()}][&] try to unzip file [{names}] to path [{unzip_path}]")
+                    zip_file.extract(names, unzip_path)
+                    console.print(f"[{color()}][+] finish to unzip file [{names}] to path [{unzip_path}]")
+                zip_file.close()
+                os.remove(file_)
+                return True
+            else:
+                os.remove(file_)
+                if Retrytime > 0:
+                    console.print(f"[{color()}][-] Retrying... ...")
+                    Retrytime -= 1
+                    download(link, save_path, file_name)
         return False
     except Exception as e:
+        if os.path.exists(file_):
+            os.remove(file_)
         console.print(f"[red]{e}")
-        return False
+        console.print(f"[{color()}][+] Waitting to Retry... ...")
+        time.sleep(1.5)
+        if Retrytime > 0:
+            console.print(f"[{color()}][-] Retrying... ...")
+            Retrytime -= 1
+            download(link, save_path, file_name)
+        else:
+            return False
 
 
 async def start(publishedFileId):
@@ -195,15 +217,11 @@ async def start(publishedFileId):
         console.print(f"[{color()}][%] 获取下载地址中 ... ...")
         links = await asyncio.gather(*task)
         # print(links)
-    save_path = get_config()
-    console.print(f"[{color()}][+] 开始下载 ... ...")
-    for link, file_name in links:
-        download_status = download(link, save_path, file_name)
-        if download_status:
-            return "Done"
+        return links
+    return ""
 
 
-if __name__ == "__main__":
+def run():
     if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     console.print(f"[{color()}][0]创意工坊地址: https://steamcommunity.com/workshop/browse/?appid=431960")
@@ -217,11 +235,20 @@ if __name__ == "__main__":
             elif unmber:
                 console.print("[red][!] 输入错误")
                 continue
-            try:
-                asyncio.run(start(int(id)))
-            except Exception as e:
-                console.print(f"[red]{e}")
-                Prompt.ask(f"[{color()}][&]按任意按键退出")
-                sys.exit(0)    
+            links = asyncio.run(start(int(id)))
+            if links:
+                save_path = get_config()
+                console.print(f"[{color()}][+] 开始下载 ... ...")
+                for link, file_name in links:
+                    download_status = download(link, save_path, file_name)
+                    if download_status:
+                        break
+            else:
+                console.print("[red][!] 未查询到下载链接")
         else:
             console.print("[red][!] 输入错误")
+
+
+
+if __name__ == "__main__":
+    run()
