@@ -1,4 +1,3 @@
-from ast import If
 import asyncio
 import json
 import os
@@ -146,10 +145,9 @@ async def dow_path(node, uuid):
                 storagePath = json.loads(res)[uuid]["storagePath"]
                 if storagePath:
                     # storagePath = "431960/2009158089/1596418154/2009158089_sea_bunny_girl.raw.download.zip"
-                    file_name = str(storagePath).split("/")[-1].replace("raw.download.", "")
                     # print(file_name)
                     down_link = f"{node}/prod/storage/{storagePath}?uuid={uuid}"
-                    return down_link, file_name
+                    return down_link
                 return ""
     except RuntimeError as e:
         console.print(f"[red]{e}")
@@ -240,8 +238,8 @@ def run():
                 try:
                     save_path = get_config()
                     console.print(f"[{color()}][+] 开始下载 ... ...")
-                    for link, file_name in links:
-                        download_status = download(link, save_path, file_name)
+                    for link in links:
+                        download_status = download(link, save_path, str(id))
                         if download_status:
                             break
                 except:
