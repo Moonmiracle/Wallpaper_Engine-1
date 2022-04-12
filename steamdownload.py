@@ -156,8 +156,7 @@ async def dow_path(node, uuid):
 def download(link, save_path, file_name):
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"}
-    file_ = os.path.join(save_path, file_name)
-    # print(link)
+    file_ = os.path.join(save_path, f"{file_name}.zip")
     downSize = 0
     try:
         resp = requests.get(link, headers=header, verify=False, stream=True)
@@ -239,7 +238,7 @@ def run():
                     save_path = get_config()
                     console.print(f"[{color()}][+] 开始下载 ... ...")
                     for link in links:
-                        download_status = download(link, save_path, str(id))
+                        download_status = download(link, save_path, str(id)) if link else None
                         if download_status:
                             break
                 except:
