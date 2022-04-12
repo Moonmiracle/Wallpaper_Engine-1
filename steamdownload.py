@@ -237,11 +237,14 @@ def run():
                 try:
                     save_path = get_config()
                     console.print(f"[{color()}][+] 开始下载 ... ...")
+                    finish = False
                     for link in links:
                         download_status = download(link, save_path, str(id)) if link else None
                         if download_status:
+                            finish = True
                             break
-                    console.print("[red][-] 网络错误，请重试")    
+                    if not finish:
+                        console.print("[red][-] 网络错误，请重试")    
                 except:
                     console.print("[red][-] 网络错误，请重试")
                     continue
