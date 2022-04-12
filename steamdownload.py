@@ -241,6 +241,7 @@ def run():
                         download_status = download(link, save_path, str(id)) if link else None
                         if download_status:
                             break
+                    console.print("[red][-] 网络错误，请重试")    
                 except:
                     console.print("[red][-] 网络错误，请重试")
                     continue
