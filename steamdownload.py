@@ -210,7 +210,7 @@ def download(link, save_path, file_name):
 async def start(publishedFileId):
     console.print(f"[{color()}][*] 获取uuid中... ...")
     async with aiohttp.ClientSession() as session:
-        task = [get_link(session, f"https://node0{i}.steamworkshopdownloader.io", publishedFileId) for i in range(1, 6)]
+        task = [get_link(session, f"https://node0{i}.steamworkshopdownloader.io", publishedFileId) for i in range(1, 9)]
         console.print(f"[{color()}][%] 获取下载地址中 ... ...")
         links = await asyncio.gather(*task)
         # print(links)
@@ -233,6 +233,7 @@ def run():
                 console.print("[red][!] 输入错误")
                 continue
             links = asyncio.run(start(int(id)))
+            # print(links)
             if links:
                 try:
                     save_path = get_config()
