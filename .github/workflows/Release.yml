@@ -31,10 +31,10 @@ jobs:
         pyinstaller -F -i "img/Steam.ico" steamdownload.py --distpath=.
     
     - name: Release
-        uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: ${{ secrets.PUSH_TOKEN }}
-          prerelease: false
-          automatic_release_tag: "latest"
-          files: |
-            steamdownload.exe
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: ${{ secrets.PUSH_TOKEN }}
+        prerelease: false
+        automatic_release_tag: "latest"
+        files: |
+          steamdownload.exe
